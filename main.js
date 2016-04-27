@@ -7,13 +7,9 @@ var Game = function(canvasId){
 
     this.bodies = createInvaders(this).concat(player);
 
-    this.getGameSize = function(){
-        return gameSize;
-    }
-
     var tick = function(){
         requestAnimationFrame(tick);
-        self.update();
+        self.update(gameSize);
         self.draw(screen, gameSize);
     }   
 
@@ -21,9 +17,8 @@ var Game = function(canvasId){
 }
 
 Game.prototype = {
-    update:function(){
+    update:function(gameSize){
         var bodies = this.bodies;
-        var gameSize = this.getGameSize();
         var notCollidingWithAnything = function(b1){
             return bodies.filter(function(b2){ 
                 return colliding(b1, b2); 
@@ -37,7 +32,7 @@ Game.prototype = {
         this.bodies = this.bodies.filter(notCollidingWithAnything).filter(inGameAreaY);
 
         for (var i = 0; i< this.bodies.length; i++) {
-            this.bodies[i].update();
+            this.bodies[i].update(gameSize);
         }   
     },
 
@@ -63,17 +58,21 @@ var Player = function(game, gameSize){
     this.size = {x: 15, y:15};
     this.center = {x:gameSize.x/2, y: gameSize.y - this.size.x/2}
     this.keyboarder = new Keyboarder();
+    this.canShoot = true;
 }
 
 Player.prototype ={
-    update: function() {
+    update: function(gameSize) {
+        var self = this;
         if(this.keyboarder.isDown(this.keyboarder.KEYS.LEFT) && this.center.x - this.size.x/2 - 2  > 0){
             this.center.x -= 2;
-        } else if(this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT) && this.center.x + this.size.x/2 + 2 < this.game.getGameSize().x){
+        } else if(this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT) && this.center.x + this.size.x/2 + 2 < gameSize.x){
             this.center.x += 2;
         }
 
-        if(this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)){
+        if(this.keyboarder.isDown(this.keyboarder.KEYS.SPACE) && this.canShoot){
+            this.canShoot = false;
+
             var bullet = new Bullet({
                 /*bullet start position*/
                 x: this.center.x,
@@ -85,6 +84,10 @@ Player.prototype ={
             });
 
             this.game.addBody(bullet);
+
+            setTimeout(function(){
+                self.canShoot = true;
+            },300);
 
         }
     }
