@@ -116,7 +116,7 @@ Invader.prototype ={
         this.center.x += this.speedX;
         this.patrolX += this.speedX;
 
-        if(Math.random() > 0.994 && !this.invadersBelow(this)){
+        if(Math.random() > 0.995 && !this.invadersBelow(this)){
 
             var bullet = new Bullet({
                 /*bullet start position*/
@@ -133,10 +133,8 @@ Invader.prototype ={
 
     invadersBelow: function(invader){
         return this.game.bodies.filter(function(b){
-            if(b instanceof Invader && b.center.x - invader.center.x < invader.size.x){
-                if(b.center.y > invader.center.y){
-                    return true;
-                }
+            if(b instanceof Invader && Math.abs(b.center.x - invader.center.x) < invader.size.x && b.center.y > invader.center.y){
+                return true;
             }
             return false;      
         }).length > 0;
