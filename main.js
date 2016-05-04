@@ -105,23 +105,32 @@ var Invader = function(game, center){
     this.center = center;
     this.patrolX = 0;
     this.speedX = 0.3;
+    this.canShoot = true;
 }
 
 Invader.prototype ={
     update: function() {
+        if(this.patrolX<3 || this.patrolX >37){
+            this.canShoot = false;
+        }else{
+           this.canShoot = true; 
+        }
+
         if(this.patrolX<0 || this.patrolX >40){
             this.speedX = -this.speedX;
+            this.center.y +=  this.size.y; 
         }   
 
         this.center.x += this.speedX;
         this.patrolX += this.speedX;
 
-        if(Math.random() > 0.995 && !this.invadersBelow(this)){
+
+        if(this.canShoot && Math.random() > 0.996 && !this.invadersBelow(this)){
 
             var bullet = new Bullet({
                 /*bullet start position*/
                 x: this.center.x,
-                y: this.center.y + this.size.x/2,   
+                y: this.center.y + this.size.y/2 + 2,   
             },{
                 /*bullet velocity*/
                 x: 0,
