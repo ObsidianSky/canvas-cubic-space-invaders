@@ -1,11 +1,12 @@
 var Game = function(canvasId){
-    var canvas = document.getElementById(canvasId);
+    var canvas = document.getElementById('canvas');
     var screen = canvas.getContext('2d');
     var gameSize = { x: canvas.width, y: canvas.height};
     var self = this;
     var player = new Player(this, gameSize);
 
-    this.bodies = createInvaders(this).concat(player);
+
+    this.bodies = createInvaders(this, gameSize).concat(player);
 
     var tick = function(){
         requestAnimationFrame(tick);
@@ -99,24 +100,25 @@ Player.prototype ={
 /*
 * Invader class
 */
-var Invader = function(game, center){
+var Invader = function(game, center, gameSize){
     this.game = game;
     this.size = {x: 15, y:15};
     this.center = center;
     this.patrolX = 0;
-    this.speedX = 0.3;
+    this.speedX = 0.25;
     this.canShoot = true;
+    this.patrolLimit = gameSize.x - 8*30-30;
 }
 
 Invader.prototype ={
-    update: function() {
-        if(this.patrolX<3 || this.patrolX >37){
+    update: function(gameSize) {
+        if(this.patrolX < 4 || this.patrolX > this.patrolLimit-4){ //magic number
             this.canShoot = false;
         }else{
            this.canShoot = true; 
         }
 
-        if(this.patrolX<0 || this.patrolX >40){
+        if(this.patrolX < 0 || this.patrolX > this.patrolLimit){
             this.speedX = -this.speedX;
             this.center.y +=  this.size.y; 
         }   
@@ -125,7 +127,7 @@ Invader.prototype ={
         this.patrolX += this.speedX;
 
 
-        if(this.canShoot && Math.random() > 0.996 && !this.invadersBelow(this)){
+        if(this.canShoot && !this.invadersBelow(this) && Math.random() > 0.996){
 
             var bullet = new Bullet({
                 /*bullet start position*/
@@ -174,12 +176,13 @@ Bullet.prototype ={
 */
 
 
-var createInvaders = function(game){
+var createInvaders = function(game, gameSize){
     var invaders = [];
     for (var i = 0; i<24; i++){
         var x = 30 + (i % 8) * 30;
         var y = 30 + (i % 3) * 30;
-        invaders.push(new Invader(game, { x: x, y: y}));
+        invaders.push(new Invader(game, { x: x, y: y}, gameSize));
+        console.log(x,y);
     }
 
     return invaders;
@@ -220,6 +223,6 @@ var colliding = function(b1, b2){
 };
 
 window.onload = function() {
-   new Game("canvas");
+   new Game();
 }    
 
