@@ -106,6 +106,11 @@ var Invader = function(game, center){
     this.patrolX = 0;
     this.speedX = 0.3;
     this.canShoot = true;
+    
+    this.moveX = true;
+    this.moveY = false;
+    this.patrolY= 0;
+    this.speedY = 0.3;
 }
 
 Invader.prototype ={
@@ -116,14 +121,32 @@ Invader.prototype ={
            this.canShoot = true; 
         }
 
-        if(this.patrolX<0 || this.patrolX >40){
+        // Смена направления движения по X, разрешение движения по Y
+        if(this.moveX && (this.patrolX<0 || this.patrolX >40)){
             this.speedX = -this.speedX;
-            this.center.y +=  this.size.y; 
-        }   
+            this.patrolX += this.speedX; 
+            this.moveX = false;
+            this.moveY = true; 
+        }  
 
-        this.center.x += this.speedX;
-        this.patrolX += this.speedX;
+		// Смена направления движения по Y, разрешение движения по X
+        if(this.moveY && this.patrolY>15){
+            this.patrolY = 0;
+            this.moveY = false;
+            this.moveX = true; 
+        }  
 
+		// Двигаемся по X
+        if(this.moveX){
+            this.center.x += this.speedX;
+        	this.patrolX += this.speedX;	
+        }
+
+		// Двигаемся по Y
+        if(this.moveY){
+        	this.center.y += this.speedY;
+        	this.patrolY += this.speedY;
+        }
 
         if(this.canShoot && Math.random() > 0.996 && !this.invadersBelow(this)){
 
