@@ -63,9 +63,17 @@
 	.modal-button{
 		margin-top: 15px;
 	}
+	.lives-holder{
+		position: absolute;
+		top: 0;
+		left: 10px;
+		z-index: 2;
+	}
 </style>
 <div class="wrapper clearfix">
 	<canvas id="canvas" width=310 height=310></canvas>
+	
+	<div class="lives-holder">Lives: <span id="lives">0</span></div>
 
 	<div id="modal" class="modal">
 		<div class="modal-inner">

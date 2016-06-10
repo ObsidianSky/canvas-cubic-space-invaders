@@ -2,6 +2,11 @@
 
 var modal = document.getElementById('modal');
 var button = document.getElementById('modal-button');
+var lives = document.getElementById('lives');
+
+var setLives = function(playerLives){
+	lives.innerHTML = playerLives;
+}
 
 window.onload = function() {
    button.addEventListener('click', function(){
@@ -16,25 +21,28 @@ var Game = function(canvasId){
     var gameSize = { x: canvas.width, y: canvas.height};
     var self = this;
     var player = new Player(this, gameSize);
+	setLives(player.lives);
 
-    // this.gamePlay = true;
-    this.bodies = [player].concat(createInvaders(this, gameSize));
+    self.playerIsAlive = function(){
+    	return player.lives !== 0;
+    }
 
-
+    self.bodies = [player].concat(createInvaders(self, gameSize));
 
     var tick = function(){
-    	// if(self.gamePlay){
+
+    	if(self.playerIsAlive()){
 	        requestAnimationFrame(tick);
-	        self.update(screen, gameSize);
-	        self.draw(screen, gameSize);
-    	// }
+	        self.update(gameSize, player);
+	        self.draw(screen, gameSize, player);
+    	}
     }   
 
     tick();
 }
 
 Game.prototype = {
-    update:function(screen, gameSize){
+    update:function(gameSize, player){
         var bodies = this.bodies;
 
         // Функция проверки на взаимодействие между обьектами 
@@ -51,10 +59,11 @@ Game.prototype = {
 
         this.bodies = this.bodies.filter(notCollidingWithAnything).filter(inGameAreaY);
 
-      //   if(!(this.bodies[0] instanceof Player)){
-    		// this.gamePlay = false;
-    		// screen.clearRect(0,0, gameSize.x, gameSize.y);	
-      //   }
+        if(!(this.bodies[0] instanceof Player)){
+    		player.lives -= 1;
+    		setLives(player.lives);
+    		this.bodies.unshift(player);
+        }
 
         for (var i = 0; i< this.bodies.length; i++) {
             this.bodies[i].update(gameSize);
@@ -63,9 +72,11 @@ Game.prototype = {
 
     draw: function(screen, gameSize){
 		clearScreen(screen, gameSize);
+
         for (var i = 0; i< this.bodies.length; i++) {
             drawRect(screen,  this.bodies[i]);
         }
+
     },
 
     addBody: function(body){
@@ -83,11 +94,13 @@ var Player = function(game, gameSize){
     this.center = {x:gameSize.x/2, y: gameSize.y - this.size.x/2}
     this.keyboarder = new Keyboarder();
     this.canShoot = true;
+    this.lives = 3;
 }
 
 Player.prototype ={
     update: function(gameSize) {
         var self = this;
+
         if(this.keyboarder.isDown(this.keyboarder.KEYS.LEFT) && this.center.x - this.size.x/2 - 2  > 0){
             this.center.x -= 2;
         } else if(this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT) && this.center.x + this.size.x/2 + 2 < gameSize.x){
@@ -143,11 +156,6 @@ var Invader = function(game, center, gameSize){
 
 Invader.prototype ={
     update: function(gameSize) {
-        // if(this.patrolX < 4 || this.patrolX > this.patrolLimit-4){ //magic number
-        //     this.canShoot = false;
-        // }else{
-        //    this.canShoot = true; 
-        // }
 
         // Смена направления движения по X, разрешение движения по Y
         if(this.moveX && (this.patrolX < 0 || this.patrolX > this.patrolLimit)){
