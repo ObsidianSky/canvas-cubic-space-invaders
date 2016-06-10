@@ -6,13 +6,74 @@
 </head>
 <body>
 <style>
+	body{
+		text-align: center;
+		font-family: Arial,sans-serif;
+		text-transform: uppercase;
+	}
 	canvas{
 		border:1px solid #000;
-		display: block;
-		margin: 0 auto;
+		float: left;
+
+	}
+	.clearfix:after{
+		content:'';
+		display: table;
+		clear: both;
+	}
+	.wrapper{
+		position: relative;
+		display: inline-block;
+	}
+	.modal{
+		position: absolute;
+		z-index: 1;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+	.modal-inner{
+		position: absolute;
+		top: 50%;
+		left: 0;
+		right: 0;
+		transform: translateY(-50%);
+	}
+	.modal-text{
+		font-size: 20px;
+		font-weight: bold;
+	}
+	button{
+		border:1px solid #000;
+		background: #fff;
+		color:#000;
+		outline: 0;
+		padding: 5px 10px;
+		text-transform: uppercase;
+		cursor: pointer;
+		box-shadow: none;
+	}
+	button:hover{
+		border:1px solid #000;
+		background: #000;
+		color:#fff;
+	}
+	.modal-button{
+		margin-top: 15px;
 	}
 </style>
-<canvas id="canvas" width=310 height=310></canvas>
+<div class="wrapper clearfix">
+	<canvas id="canvas" width=310 height=310></canvas>
+
+	<div id="modal" class="modal">
+		<div class="modal-inner">
+			<div id="modal-text" class="modal-text">Space Invaders</div>
+			<button id="modal-button" class="modal-button">Start</div>
+		</div>
+	</div>
+</div>
 <script src="main.js"></script>
 </body>
 </html>

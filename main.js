@@ -1,3 +1,15 @@
+//UI elements
+
+var modal = document.getElementById('modal');
+var button = document.getElementById('modal-button');
+
+window.onload = function() {
+   button.addEventListener('click', function(){
+   	 modal.style.display = 'none';
+   	 new Game;
+   })
+}   
+
 var Game = function(canvasId){
     var canvas = document.getElementById('canvas');
     var screen = canvas.getContext('2d');
@@ -5,32 +17,44 @@ var Game = function(canvasId){
     var self = this;
     var player = new Player(this, gameSize);
 
+    // this.gamePlay = true;
+    this.bodies = [player].concat(createInvaders(this, gameSize));
 
-    this.bodies = createInvaders(this, gameSize).concat(player);
+
 
     var tick = function(){
-        requestAnimationFrame(tick);
-        self.update(gameSize);
-        self.draw(screen, gameSize);
+    	// if(self.gamePlay){
+	        requestAnimationFrame(tick);
+	        self.update(screen, gameSize);
+	        self.draw(screen, gameSize);
+    	// }
     }   
 
     tick();
 }
 
 Game.prototype = {
-    update:function(gameSize){
+    update:function(screen, gameSize){
         var bodies = this.bodies;
+
+        // Функция проверки на взаимодействие между обьектами 
         var notCollidingWithAnything = function(b1){
             return bodies.filter(function(b2){ 
                 return colliding(b1, b2); 
             }).length === 0;
         };
 
+        // Функция проверки нахождения обьекта внутри игрового поля 
         var inGameAreaY = function(b){
             return b.center.y > 0 && b.center.y < gameSize.y;
         }
 
         this.bodies = this.bodies.filter(notCollidingWithAnything).filter(inGameAreaY);
+
+      //   if(!(this.bodies[0] instanceof Player)){
+    		// this.gamePlay = false;
+    		// screen.clearRect(0,0, gameSize.x, gameSize.y);	
+      //   }
 
         for (var i = 0; i< this.bodies.length; i++) {
             this.bodies[i].update(gameSize);
@@ -38,8 +62,7 @@ Game.prototype = {
     },
 
     draw: function(screen, gameSize){
-        screen.clearRect(0,0, gameSize.x, gameSize.y);
-
+		clearScreen(screen, gameSize);
         for (var i = 0; i< this.bodies.length; i++) {
             drawRect(screen,  this.bodies[i]);
         }
@@ -104,24 +127,27 @@ var Invader = function(game, center, gameSize){
     this.game = game;
     this.size = {x: 15, y:15};
     this.center = center;
-    this.patrolX = 0;
-    this.speedX = 0.25;
     this.canShoot = true;
     this.patrolLimit = gameSize.x - 8*30-30;
-    
+
+    this.patrolX = 0;
+    this.speedX = 0.25;
     this.moveX = true;
-    this.moveY = false;
+    
     this.patrolY= 0;
     this.speedY = 0.25;
+    this.moveY = false;
+
+
 }
 
 Invader.prototype ={
     update: function(gameSize) {
-        if(this.patrolX < 4 || this.patrolX > this.patrolLimit-4){ //magic number
-            this.canShoot = false;
-        }else{
-           this.canShoot = true; 
-        }
+        // if(this.patrolX < 4 || this.patrolX > this.patrolLimit-4){ //magic number
+        //     this.canShoot = false;
+        // }else{
+        //    this.canShoot = true; 
+        // }
 
         // Смена направления движения по X, разрешение движения по Y
         if(this.moveX && (this.patrolX < 0 || this.patrolX > this.patrolLimit)){
@@ -205,7 +231,6 @@ var createInvaders = function(game, gameSize){
         var x = 30 + (i % 8) * 30;
         var y = 30 + (i % 3) * 30;
         invaders.push(new Invader(game, { x: x, y: y}, gameSize));
-        console.log(x,y);
     }
 
     return invaders;
@@ -222,7 +247,6 @@ var Keyboarder = function() {
 
     window.onkeydown = function(e) {
         keyState[e.keyCode] = true;
-        console.log(e.keyCode);
     };
 
     window.onkeyup = function(e) {
@@ -245,7 +269,8 @@ var colliding = function(b1, b2){
              );
 };
 
-window.onload = function() {
-   new Game();
-}    
+var clearScreen = function(screen, gameSize){
+	screen.clearRect(0,0, gameSize.x, gameSize.y);	
+}        
+		
 
